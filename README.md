@@ -1,2 +1,2 @@
 # snakeGame
-Simple snake game
+Simple snake game that can be played by clicking HTML link
