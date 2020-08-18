@@ -1,0 +1,106 @@
+<head>
+  <title>Simple Snake Game</title>
+  <meta name="author" content="Gary Hui" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <canvas width="400" height="400" style="border: 2px solid red;"></canvas>
+
+  <script>
+    const BOARD_SIZE = 400
+    const BOARD_SIZE_SCALED = BOARD_SIZE / 10
+    const canvas = document.body.children[0]
+    const context = canvas.getContext("2d")
+    context.scale(10, 10)
+    context.fillRect(1, 1, 2, 6) // x,y-coord of upper left corner, width. height
+
+    let snake = [[0, 1], [0, 2], [0, 3], [1, 3], [1, 4]]
+    let apple = [5, 5]
+    let direction = [1, 0] // Makes start of game move right
+
+    document.body.onkeydown = function(event) {
+      switch (event.which) {
+        case 37: // left
+          direction = [-1, 0]
+          break
+        case 38: // up
+          direction = [0, -1]
+          break
+        case 39: // right
+          direction = [1, 0]
+          break
+        case 40: // down
+          direction = [0, 1]
+      }
+    }
+
+    function isGameOver() {
+      const headX = snake[0][0]
+      const headY = snake[0][1]
+      const RESET_SNAKE_POSITION = [[3, 3]]
+      const WIN_GAME_SNAKE_SIZE = 12
+
+      // if head touches any snake, restart game with snake length of 1
+      for (i = 1; i < snake.length; i++) {
+        if (headX == snake[i][0] && headY == snake[i][1]) {
+          alert("Game over, you touched the snake!!")
+          snake = RESET_SNAKE_POSITION
+        }
+      }
+
+      // if snake touches canvas edge, make it appear on the opposite side
+      if (
+        headX >= BOARD_SIZE_SCALED ||
+        headX < 0 ||
+        headY >= BOARD_SIZE_SCALED ||
+        headY < 0
+      ) {
+        alert("Game over, you touched the edges!!")
+        snake = RESET_SNAKE_POSITION
+      }
+
+      if (snake.length >= WIN_GAME_SNAKE_SIZE) {
+        alert(`You win! The snake length has reached ${WIN_GAME_SNAKE_SIZE} !`)
+        snake = RESET_SNAKE_POSITION
+      }
+    }
+
+    // if snake touches apple, move apple + inc snake, else update position of snake
+    function updateLoop() {
+      // Add new head = old head + direction increment
+      head = snake[0]
+      snake.unshift([head[0] + direction[0], head[1] + direction[1]])
+
+      // if head touches apple, randomly move apple
+      if (snake[0][0] == apple[0] && snake[0][1] == apple[1]) {
+        apple = [
+          Math.floor(Math.random() * 30) + 1,
+          Math.floor(Math.random() * 30) + 1,
+        ]
+      }
+      // Not touch apple, remove tail element from snake
+      else {
+        snake.pop()
+      }
+
+      isGameOver()
+      drawGame()
+    }
+
+    // Draws the snake and apple on the board
+    function drawGame() {
+      context.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE)
+      // draws a moving snake , uses ([x,y]) bc each element is an array[]
+      snake.forEach(function([x, y]) {
+        context.fillStyle = "black"
+        context.fillRect(x, y, 1, 1)
+      })
+      // Fill the coordinate of apple to be red
+      context.fillStyle = "red"
+      context.fillRect(apple[0], apple[1], 1, 1)
+    }
+
+    setInterval(updateLoop, 200)
+  </script>
+</body>
